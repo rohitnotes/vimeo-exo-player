@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -18,13 +20,11 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.gson.Gson;
 import com.vikas.videoplayer.vimeo.Files;
 import com.vikas.videoplayer.vimeo.Progressive;
 import com.vikas.videoplayer.vimeo.VideoInfo;
@@ -41,6 +41,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
+    ProgressBar progressBar;
     List<String> mediaList;
     SimpleExoPlayer simpleExoPlayer;
     Button buttonChangeQuality, buttonChangeQuality2, buttonChangeQuality3;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
+        progressBar = findViewById(R.id.loader);
         try {
             initPlayer();
         } catch (Exception e) {
@@ -61,15 +63,79 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        simpleExoPlayer.stop();
+        simpleExoPlayer = null;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        try {
+            simpleExoPlayer.setPlayWhenReady(true);
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            simpleExoPlayer.setPlayWhenReady(false);
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        simpleExoPlayer.setPlayWhenReady(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        simpleExoPlayer.setPlayWhenReady(true);
+    }
+
     private void initPlayer() {
         try {
             PlayerView videoPlayer = findViewById(R.id.player_view);
             simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this);
             videoPlayer.setPlayer(simpleExoPlayer);
+            simpleExoPlayer.addListener(new Player.EventListener() {
+                @Override
+                public void onLoadingChanged(boolean isLoading) {
+                    if(isLoading) {
+                        progressBar.setVisibility(View.VISIBLE);
+                    } else {
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                }
+
+                @Override
+                public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                    if(playbackState == SimpleExoPlayer.DISCONTINUITY_REASON_SEEK_ADJUSTMENT) {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                    if(playbackState == simpleExoPlayer.STATE_READY) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                }
+            });
             simpleExoPlayer.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
                 @Override
-                public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
-
+                public void onVideoFrameAboutToBeRendered(
+                    long presentationTimeUs,
+                    long releaseTimeNs,
+                    Format format,
+                    @Nullable MediaFormat mediaFormat
+                ) {
+                    // comments section
                 }
 
             });
