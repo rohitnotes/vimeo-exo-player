@@ -1,1 +1,1 @@
-"# vimeo-exo-player" 
+# vimeo-exo-player
