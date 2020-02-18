@@ -105,6 +105,25 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/player_settings"
+            android:src="@drawable/video_settings"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:tint="#eeeeee"
+            android:padding="15dp"
+            android:background="#0000"
+            android:tintMode="src_in" />
+
     </LinearLayout>
+
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loader"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"/>
+
 
 </RelativeLayout>

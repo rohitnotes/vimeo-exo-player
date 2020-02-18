@@ -7,10 +7,15 @@ import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -41,10 +46,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
+    ImageButton playerSettings;
     ProgressBar progressBar;
     List<String> mediaList;
     SimpleExoPlayer simpleExoPlayer;
-    Button buttonChangeQuality, buttonChangeQuality2, buttonChangeQuality3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
-        progressBar = findViewById(R.id.loader);
         try {
             initPlayer();
         } catch (Exception e) {
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         simpleExoPlayer.stop();
+        simpleExoPlayer.release();
         simpleExoPlayer = null;
     }
 
@@ -107,6 +112,14 @@ public class MainActivity extends AppCompatActivity {
             PlayerView videoPlayer = findViewById(R.id.player_view);
             simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this);
             videoPlayer.setPlayer(simpleExoPlayer);
+            progressBar = findViewById(R.id.loader);
+            playerSettings = findViewById(R.id.player_settings);
+            playerSettings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showMenu(v);
+                }
+            });
             simpleExoPlayer.addListener(new Player.EventListener() {
                 @Override
                 public void onLoadingChanged(boolean isLoading) {
@@ -155,27 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-            buttonChangeQuality = findViewById(R.id.buttonChangeQuality);
-            buttonChangeQuality.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setMediaQuality("HIGH");
-                }
-            });
-            buttonChangeQuality2 = findViewById(R.id.buttonChangeQuality2);
-            buttonChangeQuality2.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setMediaQuality("LOW");
-                }
-            });
-            buttonChangeQuality3 = findViewById(R.id.buttonChangeQuality3);
-            buttonChangeQuality3.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setMediaQuality("NORMAL");
-                }
-            });
 
         } catch (Exception e) {
             Log.d("error", "initPlayer: " + e.getLocalizedMessage());
@@ -187,9 +179,9 @@ public class MainActivity extends AppCompatActivity {
         if(videoQuality.equals("LOW")) {
             uri = Uri.parse(mediaList.get(0));
         } else if(videoQuality.equals("HIGH")) {
-            uri = Uri.parse(mediaList.get(mediaList.size() - 1));
-        } else {
             uri = Uri.parse(mediaList.get(mediaList.size() - 2));
+        } else {
+            uri = Uri.parse(mediaList.get(mediaList.size() - 1));
         }
         simpleExoPlayer.setPlayWhenReady(false);
         long position = simpleExoPlayer.getContentPosition();
@@ -248,6 +240,32 @@ public class MainActivity extends AppCompatActivity {
     private void setMediaPlayback(List<String> url) {
         mediaList = url;
         setMediaQuality("NORMAL");
+    }
+
+    public void showMenu(View v)
+    {
+        PopupMenu popup = new PopupMenu(this, v);
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.video_quality_high:
+                        setMediaQuality("HIGH");
+                        break;
+                    case R.id.video_quality_medium:
+                        setMediaQuality("NORMAL");
+                        break;
+                    case R.id.video_quality_low:
+                        setMediaQuality("LOW");
+                        break;
+                }
+                return false;
+            }
+        });
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.video_settings, popup.getMenu());
+        popup.show();
     }
 
 }
