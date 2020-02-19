@@ -17,7 +17,7 @@
 
         <ImageButton
             android:id="@id/exo_rew"
-            android:layout_marginHorizontal="7dp"
+            android:layout_marginHorizontal="18dp"
             style="@style/ExoMediaButton.Rewind"
             android:background="@drawable/round_medium_dark_btn"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 
         <ImageButton
             android:id="@id/exo_ffwd"
-            android:layout_marginHorizontal="7dp"
+            android:layout_marginHorizontal="18dp"
             style="@style/ExoMediaButton.FastForward"
             android:background="@drawable/round_medium_dark_btn"
             android:layout_height="wrap_content"
@@ -111,19 +111,22 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:tint="#eeeeee"
-            android:padding="15dp"
+            android:padding="10dp"
+            android:background="#0000"
+            android:tintMode="src_in" />
+
+
+        <ImageButton
+            android:id="@+id/fullscreen_btn"
+            android:src="@drawable/fullscreen_open"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:tint="#eeeeee"
+            android:padding="10dp"
             android:background="#0000"
             android:tintMode="src_in" />
 
     </LinearLayout>
-
-
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/loader"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"/>
 
 
 </RelativeLayout>
