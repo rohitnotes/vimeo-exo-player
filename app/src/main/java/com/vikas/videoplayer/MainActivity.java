@@ -10,6 +10,7 @@ import android.view.GestureDetector;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -143,23 +144,36 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             });
-            final GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+            final ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
                 @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    if (videoPlayer.getResizeMode() == AspectRatioFrameLayout.RESIZE_MODE_ZOOM)
-                        videoPlayer.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
-                    else
+                public boolean onScale(ScaleGestureDetector detector) {
+                    if(detector.getScaleFactor() > 1.2) {
                         videoPlayer.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
-                    return false;
-                }
-            });
-            videoPlayer.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    gestureDetector.onTouchEvent(event);
+                    }
+                    else if(detector.getScaleFactor() < 0.9) {
+                        videoPlayer.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+                    }
                     return false;
                 }
 
+                @Override
+                public boolean onScaleBegin(ScaleGestureDetector detector) {
+                    return true;
+                }
+
+                @Override
+                public void onScaleEnd(ScaleGestureDetector detector) {
+                }
+
+
+            });
+
+            videoPlayer.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    scaleGestureDetector.onTouchEvent(event);
+                    return false;
+                }
             });
 
             simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this);
